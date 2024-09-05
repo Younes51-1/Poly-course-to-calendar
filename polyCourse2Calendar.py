@@ -26,7 +26,7 @@ class Group:
         self.room = room
         self.course_length = course_length 
         self.frequency = frequency  
-        self.hour = hour 
+        self.hour = ','.join(sorted(hour.split(',')))
 
     def __repr__(self):
         return (f"Group(number={self.number}, week_day={self.week_day}, room={self.room}, "
@@ -211,10 +211,14 @@ def generate_ics_file(courses_manager: 'Courses', courses_to_convert: Dict[str, 
                                     total_hours = len(group.hour.split(','))
 
                                     event = Event()
-                                    event.name = f"{course.sigle} - {course.name} - Group {group.number} ({'COURSE' if group_type == 'c' else 'LAB'})"
+                                    event.name = f"{course.sigle} - {course.name} - Groupe {group.number} ({'COURS' if group_type == 'c' else 'LAB'})"
                                     event.begin = event_date_time
                                     event.duration = timedelta(hours=total_hours)
                                     event.location = group.room
+
+                                    event.alarms = [
+                                        {"action": "display", "trigger": timedelta(minutes=-30)}
+                                    ]
 
                                     calendar.events.add(event)
 
@@ -231,7 +235,7 @@ courses_manager.read_csv_files(horsages_path)
 alternance_map = courses_manager.read_alternance_csv(alternance_path)
 
 courses_to_convert = {
-    "LOG1810": {"c": [], "l": [4]},
+    "LOG1810": {"c": [2], "l": [4]},
     "INF1015": {"c": [1], "l": [1]},
 }
 
